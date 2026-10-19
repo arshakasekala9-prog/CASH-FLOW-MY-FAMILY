@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cash Flow My Family</title>
+  <meta name="description" content="Catatan pengeluaran bulanan keluarga">
+  <meta name="theme-color" content="#1f63b8">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Cash Flow">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Layar memuat -->
+  <div id="boot" class="boot" role="status">Memuat…</div>
+
+  <!-- Layar login -->
+  <main id="login" class="login" hidden>
+    <form id="loginForm" class="login-card" autocomplete="on">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="40" height="40"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 23V16M14 23V11M20 23V14M26 23V8" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" transform="translate(-1 0)"/></svg>
+      </div>
+      <h1>Cash Flow My Family</h1>
+      <p class="muted">Masuk untuk melihat dan mencatat pengeluaran keluarga.</p>
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="username" required inputmode="email">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <p id="loginError" class="error" role="alert" hidden></p>
+      <button class="btn primary" type="submit" id="loginBtn">Masuk</button>
+    </form>
+  </main>
+
+  <!-- Aplikasi utama -->
+  <div id="app" class="app" hidden>
+    <div id="demoBanner" class="demo" hidden>Mode demo: data hanya tersimpan di browser ini.</div>
+
+    <header class="top">
+      <div class="top-row">
+        <h1 class="brand">Cash Flow My Family</h1>
+        <button id="logoutBtn" class="icon-btn" aria-label="Keluar" title="Keluar">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        </button>
+      </div>
+      <div class="month-nav">
+        <button id="prevMonth" class="icon-btn" aria-label="Bulan sebelumnya">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h2 id="monthLabel" aria-live="polite">Oktober 2026</h2>
+        <button id="nextMonth" class="icon-btn" aria-label="Bulan berikutnya">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="card hero" aria-labelledby="heroLabel">
+        <p id="heroLabel" class="label">Total pengeluaran</p>
+        <p id="heroTotal" class="hero-total">Rp 0</p>
+        <p id="heroCompare" class="muted small"></p>
+        <dl class="stats">
+          <div><dt>Catatan</dt><dd id="statCount">0</dd></div>
+          <div><dt>Rata-rata per hari</dt><dd id="statAvg">Rp 0</dd></div>
+          <div><dt>Terbesar</dt><dd id="statMax">-</dd></div>
+        </dl>
+      </section>
+
+      <section class="card" aria-labelledby="chartTitle">
+        <h3 id="chartTitle" class="card-title">Pengeluaran per hari</h3>
+        <div id="chartWrap" class="chart-wrap">
+          <div id="chart" role="img" aria-label="Grafik batang pengeluaran per hari"></div>
+          <div id="tip" class="tip" hidden></div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="listTitle">
+        <h3 id="listTitle" class="card-title">Riwayat</h3>
+        <div id="list"></div>
+        <p id="empty" class="empty" hidden>Belum ada catatan di bulan ini.<br>Tekan tombol <b>Catat</b> untuk mulai.</p>
+      </section>
+    </main>
+
+    <button id="fab" class="fab" aria-label="Catat pengeluaran baru">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Catat</span>
+    </button>
+  </div>
+
+  <!-- Form catat / ubah -->
+  <dialog id="sheet" class="sheet" aria-labelledby="sheetTitle">
+    <form id="expenseForm" method="dialog" novalidate>
+      <div class="sheet-head">
+        <h2 id="sheetTitle">Catat pengeluaran</h2>
+        <button type="button" id="sheetClose" class="icon-btn" aria-label="Tutup">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <label for="fName">Nama pengeluaran</label>
+      <input id="fName" type="text" maxlength="80" placeholder="Contoh: Makan siang" autocomplete="off" required>
+      <label for="fAmount">Harga (Rp)</label>
+      <input id="fAmount" type="text" inputmode="numeric" placeholder="0" autocomplete="off" required>
+      <label for="fDate">Tanggal</label>
+      <input id="fDate" type="date" required>
+      <p id="formError" class="error" role="alert" hidden></p>
+      <div class="sheet-actions">
+        <button type="button" id="deleteBtn" class="btn danger" hidden>Hapus</button>
+        <button type="submit" id="saveBtn" class="btn primary">Simpan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
